@@ -1,3 +1,7 @@
+
+# STFixes-metamod 2026
+While using Scroll to BHOP players keep getting stuck in the air ...its fixed now and few other minor bugs fixed in this plugin
+
 # STFixes-metamod
 A stripped down build of CS2Fixes with only surf/bhop related fixes (disable subtick movement (speed gain fix), movement unlocker, botnavignore, water floor jump fix, trigger_push fix, trigger_gravity fix)
 

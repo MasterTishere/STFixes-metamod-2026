@@ -44,10 +44,10 @@
 #include "tier0/memdbgon.h"
 
 extern CGlobalVars* GetGlobals();
-extern CGameEntitySystem *g_pEntitySystem;
-extern CCSGameRules *g_pGameRules;
+extern CGameEntitySystem* g_pEntitySystem;
+extern CCSGameRules* g_pGameRules;
 
-CUtlVector<CDetourBase *> g_vecDetours;
+CUtlVector<CDetourBase*> g_vecDetours;
 
 DECLARE_DETOUR(TriggerPush_Touch, Detour_TriggerPush_Touch);
 DECLARE_DETOUR(CTriggerGravity_GravityTouch, Detour_CTriggerGravity_GravityTouch);
@@ -119,13 +119,13 @@ void FASTCALL Detour_TriggerPush_Touch(CTriggerPush* pPush, CBaseEntity* pOther)
 		Vector vecOrigPush = vecAbsDir * pPush->m_flSpeed();
 
 		Message("Pushing entity %i | frame = %i | tick = %i | entity basevelocity %s = %.2f %.2f %.2f | original push velocity = %.2f %.2f %.2f | final push velocity = %.2f %.2f %.2f\n",
-				pOther->GetEntityIndex(),
-				GetGlobals()->framecount,
-				GetGlobals()->tickcount,
-				(flags & (1 << 23)) ? "WITH FLAG" : "",
-				vecEntBaseVelocity.x, vecEntBaseVelocity.y, vecEntBaseVelocity.z,
-				vecOrigPush.x, vecOrigPush.y, vecOrigPush.z,
-				vecPush.x, vecPush.y, vecPush.z);
+			pOther->GetEntityIndex(),
+			GetGlobals()->framecount,
+			GetGlobals()->tickcount,
+			(flags & (1 << 23)) ? "WITH FLAG" : "",
+			vecEntBaseVelocity.x, vecEntBaseVelocity.y, vecEntBaseVelocity.z,
+			vecOrigPush.x, vecOrigPush.y, vecOrigPush.z,
+			vecPush.x, vecPush.y, vecPush.z);
 	}
 
 	pOther->m_vecBaseVelocity(vecPush);
@@ -169,11 +169,8 @@ void* FASTCALL Detour_ProcessUsercmds(CCSPlayerController* pController, CUserCmd
 		{
 			uint64 button = iterator->button();
 
-			// Remove normal subtick movement inputs by button & subtick movement viewangles by pitch/yaw.
-			// IN_JUMP is exempt: since the CS2 Season 5 jump rework (buffered jump presses), a mousewheel
-			// +jump press exists only in the subtick moves — stripping it clips/eats scroll jumps entirely,
-			// while held space survives in the tick-boundary button state.
-			if ((button > IN_JUMP && button <= IN_MOVERIGHT && button != IN_USE) || iterator->pitch_delta() != 0.0f || iterator->yaw_delta() != 0.0f)
+			// Remove normal subtick movement inputs but DO NOT erase IN_JUMP (preserves mouse scroll jumps)
+			if ((button >= IN_JUMP && button <= IN_MOVERIGHT && button != IN_USE && button != IN_JUMP) || iterator->pitch_delta() != 0.0f || iterator->yaw_delta() != 0.0f)
 				subtickMoves->erase(iterator);
 			else
 				iterator++;
@@ -185,7 +182,7 @@ void* FASTCALL Detour_ProcessUsercmds(CCSPlayerController* pController, CUserCmd
 	return ProcessUsercmds(pController, cmds, numcmds, paused, margin);
 }
 
-bool InitDetours(CGameConfig *gameConfig)
+bool InitDetours(CGameConfig* gameConfig)
 {
 	bool success = true;
 
@@ -193,7 +190,7 @@ bool InitDetours(CGameConfig *gameConfig)
 	{
 		if (!g_vecDetours[i]->CreateDetour(gameConfig))
 			success = false;
-		
+
 		g_vecDetours[i]->EnableDetour();
 	}
 
